@@ -1,0 +1,63 @@
+.designer-header {
+    height: 45px;
+    /*padding-right: 12px;*/
+    background-color: #242424;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+    color: #fff;
+    line-height: 45px;
+    margin: 0;
+    padding: 0;
+}
+
+.designer-attr-panel {
+    width: 270px;
+    position: absolute;
+    right: 0px;
+    top: 45px;
+    bottom: 0px;
+    background-color: #f6f6f6;
+}
+
+.designer-main-panel {
+    position: absolute;
+    left: 0;
+    right: 270px;
+    top: 45px;
+    bottom: 0px;
+    background-color: rgba(70, 70, 70, 70);
+    min-width: 768px;
+    min-height: 576px;
+}
+
+.designer-main-panel-ifa {
+    position: absolute;
+    right: 1px;
+    left: 0;
+    bottom: 25px;
+    top: 0;
+}
+
+#designer-status {
+    position: absolute;
+    height: 25px;
+    color: #fff;
+    border-top: 1px solid #000;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.undo-redo {
+
+}
+
+.undo-redo-enable {
+    color: #FFF;
+    cursor: pointer;
+}
+
+.undo-redo-disable {
+    color: #CCC;
+    cursor: default;
+}
+

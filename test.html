@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+
+<script>
+
+
+    function findParentPath(root, id) {
+        if (root && root.items) {
+            if (Array.isArray(root.items)) {
+                for (var i = 0; i < root.items.length; i++) {
+                    var itemId = root.items[i].id;
+                    if (id == itemId) {
+                        return ["items[" + i + "]", root];
+                    }
+                    var result = findParentPath(root.items[i], id);
+                    if (result != null) {
+                        return result;
+                    }
+                }
+            } else {
+                for (var key in root.items) {
+                    var itemId = root.items[key].id;
+                    if (id == itemId) {
+                        return ["items['" + key + "']", root];
+                    }
+                    var result = findParentPath(root.items[key], id);
+                    if (result != null) {
+                        return result;
+                    }
+                }
+            }
+        }
+    }
+
+
+    function findFullPath(root, id) {
+        var end = root.id;
+        var array = [];
+        var start = id;
+        while (start != end) {
+            var p = findParentPath(root, start);
+            array.push(p[0]);
+            start = p[1].id;
+        }
+        return array.reverse().join(".");
+    }
+
+    var root = {
+        "id": "123",
+        "type": "container",
+        "items": [{
+            "id": "1234",
+            "type": "row",
+            "items": [{
+                "type": "col",
+                "id": "1237",
+                "items": [{
+                    "id": "center",
+                    "type": "radio",
+                    "hide": false,
+                    "labelScale": "1-1",
+                    "mainScale": "1-1",
+                    "elementScale": "1-1",
+                    "options": [{"value": "true", "display": "是"}, {"value": "false", "display": "否"}],
+                    "items": {"label": {"value": "center"}, "message": {"value": "true|false"}}
+                }]
+            }]
+        }, {
+            "id": "1235",
+            "type": "row",
+            "items": [{
+                "type": "col",
+                "id": "1236",
+                "items": [{
+                    "id": "scale",
+                    "type": "input",
+                    "hide": false,
+                    "labelScale": "1-1",
+                    "mainScale": "1-1",
+                    "elementScale": "1-1",
+                    "items": {"label": {"value": "scale"}, "message": {"value": "example: 1-4"}}
+                }]
+            }]
+        }]
+    };
+    //    alert(findParentPath(root, "11"));
+
+    "items[1].items['k2']";
+
+    var aa = {
+        "id": "1375d1b0-de24-43f1-f14b-4774110f1f15",
+        "type": "container",
+        "items": [{
+            "id": "f61bf49a-3fc9-488e-bd8b-030bf79068f1",
+            "type": "row",
+            "items": [{
+                "id": "61dbf6cb-0ce6-4072-dd46-9e12470b65b6",
+                "type": "col",
+                "items": [{
+                    "id": "center",
+                    "type": "radio",
+                    "hide": false,
+                    "labelScale": "1-1",
+                    "mainScale": "1-1",
+                    "elementScale": "1-1",
+                    "options": [{"value": "true", "display": "是"}, {"value": "false", "display": "否"}],
+                    "items": {"label": {"value": "center"}, "message": {"value": "true|false"}},
+                    "value": "false"
+                }]
+            }]
+        }, {
+            "id": "c3e9888b-685e-4d6a-cb2d-5f5d10cec72d",
+            "type": "row",
+            "items": [{
+                "id": "b7b197dc-432c-41a0-c161-d36d0b9154c3",
+                "type": "col",
+                "items": [{
+                    "id": "scale",
+                    "type": "input",
+                    "hide": false,
+                    "labelScale": "1-1",
+                    "mainScale": "1-1",
+                    "elementScale": "1-1",
+                    "items": {"label": {"value": "scale"}, "message": {"value": "example: 1-4"}}
+                }]
+            }]
+        }]
+    }
+
+    var array = findFullPath(root, 'center');
+    alert(array);
+
+    var data1 =
+    {
+        "data": {
+            "list": [
+                {"text": "显示屏异常", "rate": 0.2917, "key": "Abnormaldisplayscreen@issuereason"},
+                {"text": "配件质量问题", "rate": 0.2083, "key": "Accessoriesarepoorquality@3rdIssueReason"},
+                {"text": "外观不符", "rate": 0.2083, "key": "Appearancenotasdescribed@3rdIssueReason"},
+                {"text": "电池容量与描述不符", "rate": 0.20214669, "key": "Batterycapacityisnotasdescribed@issuereason"},
+                {"text": "配件与描述不符", "rate": 0.125, "key": "Accessoriesarenotasdescribed@3rdIssueReason"},
+                {"text": "外观、尺寸不符", "rate": 0.0833, "key": "Appearancesizeisnotasdescribed@issuereason"},
+                {"text": "配件破损", "rate": 0.0417, "key": "Accessoriesarrivedbrokendamaged@3rdIssueReason"},
+                {"text": "配件问题", "rate": 0.0417, "key": "Accessoriesprobems@issuereason"},
+                {"text": "抽烟口数不符", "rate": 0, "key": "Amountofpuffsarenotasdescribed@issuereason"},
+                {"text": "配件与描述不符", "rate": 0, "key": "Accessorynotasdescribed@3rdIssueReason"},
+                {"text": "配件描述不符", "rate": 0, "key": "Accessoriesnotasdescribed@3rdIssueReason"},
+                {"text": "货物破损", "rate": 0, "key": "Productarriveddamaged@3rdIssueReason"}]
+        }, "numOfTotal": 12, "success": true
+    };
+    var data2 =
+    {
+        "data": {
+            "list": [{
+                "text": "显示屏异常",
+                "trend": [
+                    {"count": 75, "date": "2015-09-04"},
+                    {"count": 76, "date": "2015-09-05"},
+                    {"count": 77, "date": "2015-09-06"},
+                    {"count": 78, "date": "2015-09-07"},
+                    {"count": 79, "date": "2015-09-08"},
+                    {"count": 80, "date": "2015-09-09"},
+                    {"count": 81, "date": "2015-09-10"},
+                    {"count": 55, "date": "2015-09-11"},
+                    //...
+                ],
+                "key": "Abnormaldisplayscreen@issuereason"
+            }, {
+                "text": "配件质量问题",
+                "trend": [
+                    {"count": 0, "date": "2015-09-04"},
+                    {"count": 0, "date": "2015-09-05"},
+                    {"count": 0, "date": "2015-09-06"},
+                    {"count": 0, "date": "2015-09-07"},
+                    {"count": 0, "date": "2015-09-08"},
+                    {"count": 0, "date": "2015-09-09"},
+                    {"count": 0, "date": "2015-09-10"},
+                    {"count": 0, "date": "2015-09-11"},
+                    {"count": 0, "date": "2015-09-12"},
+                    {"count": 0, "date": "2015-09-13"},
+                    {"count": 0, "date": "2015-09-14"},
+                    {"count": 0, "date": "2015-09-15"},
+                    //...
+                ],
+                "key": "Accessoriesarepoorquality@3rdIssueReason"
+            }, {
+                "text": "外观不符",
+                "trend": [
+                    {"count": 0, "date": "2015-09-04"},
+                    {"count": 0, "date": "2015-09-05"},
+                    {"count": 0, "date": "2015-09-06"},
+                    {"count": 0, "date": "2015-09-07"},
+                    {"count": 0, "date": "2015-09-08"},
+                    {"count": 0, "date": "2015-09-09"},
+                    {"count": 0, "date": "2015-09-10"},
+                    {"count": 0, "date": "2015-09-11"},
+                    {"count": 0, "date": "2015-09-12"},
+                    //...
+                ],
+                "key": "Appearancenotasdescribed@3rdIssueReason"
+            }]
+        }, "numOfTotal": 3, "success": true
+    };
+</script>
+
+</body>
+</html>

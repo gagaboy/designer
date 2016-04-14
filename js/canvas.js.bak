@@ -1,0 +1,583 @@
+/**
+ * Created by yangjiankang on 16/3/31.
+ */
+
+// 组件 设计器属性： id
+// id , status:[normal, designer], selected:boolean, showSelectLabel:boolean
+// select
+// 所有设置都要dispatch到APP，统一到APP 处理(1. 记录操作. 2. 生成UNDO记录. 3. $broadcast 到组件, 组件再处理. 控制器模式)
+// 组件: 选中 --->
+// 删除 --->
+// command   : 选中, 预选中, 增加, 删除, 添加组件, 设置属性, 移动
+// component : 响应事件 : 选中, 预选中, 属性修改
+/*
+ 要通知设计器的内容:
+ 选中事件
+
+
+ 都要监听的事件:
+ 选中事件.
+
+
+ 容器组件 : 响应事件: 选中，预选中，更新，删除，移动
+ 原子组件 : 选中，更新， 删除，移动
+
+
+ 布局与原子组件的区别：是否可以添加， 是否可以移动
+
+ */
+//
+
+var commonMixin = {
+
+    events: {
+        "ide-event-component-selected": function (id) {
+            //响应选中事件
+            if (this.config.id == id) {
+                this.config.ideSelected = true;
+            } else {
+                this.config.ideSelected = false;
+            }
+            return true;
+        },
+        "ide-event-component-pre-selected": function (id) {
+            //响应预选中事件
+            if (this.config.id == id) {
+                this.config.idePreSelected = true;
+            } else {
+                this.config.idePreSelected = false;
+            }
+            return true;
+        },
+        "ide-event-component-attr-update": function (id, conf) {
+            //响应属性改变事件
+            if (this.config.id == id) {
+                for (var o in conf) {
+                    this.config[o] = conf[o];
+                }
+            }
+            return true;
+        }
+    },
+    methods: {
+        "ideSelected": function () {
+            this.$dispatch('ide-event-root-selected', this.config.id);
+        }
+    },
+    computed: {
+        "hasChild": function () {
+            if (this.config.items && this.config.items.length > 0) {
+                return true;
+            }
+            return false;
+        },
+        "cssStyle": function () {
+            var hasChild = this.config.items && this.config.items.length > 0;
+            var selected = this.config.ideSelected;
+            var preSelected = this.config.idePreSelected;
+            var style = {
+                'block-default-height': this.config.type == 'block' && !hasChild,
+                'component-selected': selected,
+                'component-pre-selected': preSelected
+            };
+            if (this.config.cssClass) {
+                style[this.config.cssClass] = true;
+            }
+            return style;
+        },
+        "flexStyle": function () {
+            if (this.config.flex != undefined) {
+                return {
+                    flex: this.config.flex
+                }
+            }
+            return {};
+        }
+    }
+
+};
+
+
+var Block = Vue.extend({
+    mixins: [commonMixin],
+    name: 'my-block',
+    props: ['config'],
+    template: $("#blockTemplate").html()
+});
+
+Vue.component('my-block', Block);
+
+
+var Input = Vue.extend({
+    mixins: [commonMixin],
+    name: 'my-input',
+    props: ['config'],
+    template: $("#inputTemplate").html()
+});
+
+Vue.component('my-input', Input);
+
+var CommandManager = function () {
+    this.undoStack = [];
+    this.redoStack = [];
+};
+
+CommandManager.prototype.undo = function () {
+    if (this.undoStack.length > 0) {
+        var cmd = this.undoStack.pop();
+        cmd['undoExecute']();
+        this.redoStack.push(cmd);
+    }
+};
+CommandManager.prototype.redo = function () {
+    if (this.redoStack.length > 0) {
+        var cmd = this.redoStack.pop();
+        cmd['execute']();
+        this.undoStack.push(cmd);
+    }
+};
+CommandManager.prototype.executeCmd = function (cmd) {
+    cmd['execute']();
+    this.undoStack.push(cmd);
+};
+CommandManager.prototype.undoLength = function () {
+    return this.undoStack.length;
+};
+
+CommandManager.prototype.redoLength = function () {
+    return this.redoStack.length;
+};
+
+
+var ComponentFactory = function () {
+
+};
+ComponentFactory.prototype.create = function (obj) {
+    return $.extend({}, {
+        cssClass: '',
+        ideSelected: false,
+        idePreSelected: false,
+        items: []
+    }, obj);
+};
+
+//元素列表
+// group   : form, layout
+// element : parent accept, type:atom|complex,config, config 自描述
+// 属性栏: 分组, 属性, 类型, 配置
+// 类型有: input, text, selected, checkbox, radio, color etc
+// 校验:   bind
+var config = {
+    group: {
+        form: {
+            input: {
+                attribute: {
+                    id: {},
+                    name: {
+                        type: 'input'
+                    }
+                }
+            },
+            select: {},
+            checkbox: {},
+            radio: {},
+            combo: {},
+            date: {}
+        },
+        layout: {
+            panel: {},
+            row: {},
+            col: {},
+            tab: {},
+            form: {}
+        },
+        other: {
+            button: {},
+            tree: {},
+            grid: {}
+        },
+        complex: {
+            searcher: {},
+            toolbar: {}
+        }
+    }
+};
+
+
+var app = null;
+var Bootstrap = {
+    commandMgr: new CommandManager(),
+    componentFactory: new ComponentFactory(),
+    init: function (config) {
+        app = new Vue({
+            el: "#appRoot",
+            data: {
+                layout: config,
+                undoLength: 0,
+                redoLength: 0,
+                selectedId: null,
+                selectedObject: null,
+                selectedPath: [],
+            },
+            events: {
+                "ide-event-root-selected": function (id) {
+                    this.select(id);
+                }
+            },
+            methods: {
+                _findById: function (id) {
+                    function findId(pid, obj) {
+                        if (obj.id == pid) {
+                            return obj;
+                        }
+                        if (obj.items) {
+                            for (var i = 0; i < obj.items.length; i++) {
+                                var o = obj.items[i];
+                                if (o.id == pid) {
+                                    return o;
+                                }
+                                var id = findId(pid, o);
+                                if (id != null) {
+                                    return id;
+                                }
+                            }
+                        }
+                        return null;
+                    }
+
+                    var object = findId(id, this.layout);
+                    return object;
+                },
+                _findParent: function (id) {
+                    if (this.layout.id == id) {
+                        return this.layout;
+                    }
+                    function query(id, obj) {
+                        if (obj.items) {
+                            for (var i = 0; i < obj.items.length; i++) {
+                                var itemId = obj.items[i].id;
+                                if (id == itemId) {
+                                    return obj;
+                                }
+                                var result = query(id, obj.items[i]);
+                                if (result != null) {
+                                    return result;
+                                }
+                            }
+                        }
+                        return null;
+                    }
+
+                    return query(id, this.layout);
+                },
+                _findSelected: function () {
+
+                    var data = this.layout;
+
+                    function find(root) {
+                        if (root.ideSelected) {
+                            return root;
+                        } else {
+                            for (var i = 0; i < root.items.length; i++) {
+                                var obj = root.items[i];
+                                var r = find(obj);
+                                if (r != null) {
+                                    return r;
+                                }
+                            }
+                        }
+                        return null;
+                    }
+
+                    return find(data);
+                },
+                _findSelectedPath: function () {
+                    var data = this.layout;
+                    var rootId = data.id;
+
+                    var start = this.selectedId;
+                    var path = [];
+                    while (start != rootId) {
+                        path.push(start);
+                        start = this._findParent(start).id;
+                    }
+                    path.push(rootId);
+                    return path.reverse();
+                },
+
+                _refreshUndoRedoAndSelect: function () {
+                    this.undoLength = Bootstrap.commandMgr.undoLength();
+                    this.redoLength = Bootstrap.commandMgr.redoLength();
+
+                    var selectObj = this._findSelected();
+                    if (selectObj) {
+                        var selectedId = selectObj.id;
+                        this.selectedId = selectedId;
+                        this.selectedObject = selectObj;
+                        this.selectedPath = this._findSelectedPath();
+                    } else {
+                        this.selectedId = null;
+                        this.selectedObject = null;
+                        this.selectedPath = [];
+                    }
+                },
+                undo: function () {
+                    Bootstrap.commandMgr.undo();
+                    this._refreshUndoRedoAndSelect();
+                },
+                redo: function () {
+                    Bootstrap.commandMgr.redo();
+                    this._refreshUndoRedoAndSelect();
+                },
+                _add: function (pid, conf, index) {
+                    //TODO index
+                    var parent = this._findById(pid);
+                    if (parent != null) {
+                        if (index == undefined) {
+                            index = parent.items.length;
+                        }
+                        parent.items.splice(index, 0, conf);
+                        //parent.items.push(conf);
+                    }
+                },
+
+                add: function (pid, conf) {
+                    var self = this;
+
+                    Bootstrap.commandMgr.executeCmd({
+                        "pid": pid,
+                        "conf": conf,
+                        "execute": function () {
+                            self._add(this.pid, this.conf);
+                        },
+                        "undoExecute": function () {
+                            self._remove(this.conf.id);
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                },
+                _remove: function (id) {
+                    var parent = this._findParent(id);
+                    var items = parent.items;
+                    var index = 0;
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].id == id) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    items.splice(index, 1);
+                    //select parent
+
+                },
+                remove: function (id) {
+                    if (!id) {
+                        return;
+                    }
+                    if (id == this.layout.id) {
+                        return;
+                    }
+                    var self = this;
+                    var parent = this._findParent(id);
+                    var pid = null;
+                    var removeIndex = null;
+                    if (parent) {
+                        pid = parent.id;
+                        var index = 0;
+                        for (var i = 0; i < parent.items.length; i++) {
+                            if (id == parent.items[i].id) {
+                                index = i;
+                            }
+                        }
+                        removeIndex = index;
+                    }
+                    var removed = this._findById(id);
+                    var removedConf = JSON.parse(JSON.stringify(removed));
+                    Bootstrap.commandMgr.executeCmd({
+                        "id": id,
+                        "pid": pid,
+                        "removedConf": removedConf,
+                        "removeIndex": removeIndex,
+                        "execute": function () {
+                            self._remove(this.id);
+                            self._select(this.pid);
+                        },
+                        "undoExecute": function () {
+                            self._add(this.pid, JSON.parse(JSON.stringify(this.removedConf)), this.removeIndex);
+                            self._select(this.removedConf.id);
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                },
+
+                _select: function (id) {
+                    this.$broadcast("ide-event-component-selected", id);
+                    var parent = this._findParent(id);
+                    if (parent) {
+                        window.console.log("id=" + id + ",pid=" + parent.id);
+                        this.$broadcast("ide-event-component-pre-selected", parent.id);
+                    }
+                },
+
+                select: function (id) {
+                    var selectObj = this._findSelected();
+                    var selectedId = null;
+                    if (selectObj) {
+                        var selectedId = selectObj.id;
+                    }
+                    //设置回调.
+                    var self = this;
+                    Bootstrap.commandMgr.executeCmd({
+                        "id": id,
+                        "hid": selectedId,
+                        "execute": function () {
+                            self._select(this.id);
+                        },
+                        "undoExecute": function () {
+                            self._select(this.hid);
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+
+
+                },
+
+                _update: function (id, conf) {
+                    this.$broadcast("ide-event-component-attr-update", id, conf);
+                },
+
+                update: function (id, conf) {
+                    var self = this;
+                    var obj = this._findById(id);
+                    var objConf = JSON.parse(JSON.stringify(obj));
+                    Bootstrap.commandMgr.executeCmd({
+                        "id": id,
+                        "conf": conf,
+                        "hconf": objConf,
+                        "execute": function () {
+                            self._update(this.id, JSON.parse(JSON.stringify(this.conf)));
+                        },
+                        "undoExecute": function () {
+                            self._update(this.id, JSON.parse(JSON.stringify(this.hconf)));
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                },
+                move: function (id, toId) {
+                    var self = this;
+                    var obj = JSON.parse(JSON.stringify(this._findById(id)));
+                    var objParent = JSON.parse(JSON.stringify(this._findParent(id)));
+                    //var toObj = JSON.parse(JSON.stringify(this._findById(toId)));
+                    //var toObjParent = JSON.parse(JSON.stringify(this._findParent(toId)));
+                    Bootstrap.commandMgr.executeCmd({
+                        "id": id,
+                        "idObj": obj,
+                        "idParent": objParent,
+                        "toId": toId,
+                        //"toObj": toObj,
+                        //"toObjParent": toObjParent,
+                        "execute": function () {
+                            self._remove(this.id);
+                            self._add(this.toId, JSON.parse(JSON.stringify(this.idObj)));
+                        },
+                        "undoExecute": function () {
+                            self._remove(this.id);
+                            self._add(this.idParent.id, JSON.parse(JSON.stringify(this.idObj)));
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                }
+            },
+            watch: {
+                //undoLength: function () {
+                //
+                //},
+                //redoLength: function () {
+                //
+                //}
+            }
+        });
+        return app;
+    }
+};
+
+$(document).ready(function () {
+    if (parent && parent.canvasReady) {
+        parent.canvasReady(Bootstrap);
+    } else {
+        var config = {
+            id: '1', type: 'block', cssClass: '', ideSelected: true, idePreSelected: false, items: [
+                {
+                    id: '21',
+                    type: 'block',
+                    cssClass: 'block-row',
+                    ideSelected: false,
+                    idePreSelected: false,
+                    items: [
+                        {
+                            id: '2111',
+                            type: 'block',
+                            cssClass: 'block-col', flex: 1,
+                            ideSelected: false,
+                            idePreSelected: false,
+                            items: []
+                        },
+                        {
+                            id: '3111',
+                            type: 'block',
+                            cssClass: 'block-col', flex: 1,
+                            ideSelected: false,
+                            idePreSelected: false,
+                            items: []
+                        }
+                    ]
+                },
+                {
+                    id: '31',
+                    type: 'block',
+                    cssClass: 'block-row',
+                    ideSelected: false,
+                    idePreSelected: false,
+                    items: [
+                        {
+                            id: '211d',
+                            type: 'block',
+                            cssClass: 'block-col', flex: 1,
+                            ideSelected: false,
+                            idePreSelected: false,
+                            items: [
+                                {
+                                    id: '3111ad',
+                                    type: 'input',
+                                    cssClass: 'block-col', flex: 1,
+                                    ideSelected: false,
+                                    idePreSelected: false,
+                                    items: []
+                                }
+                            ]
+                        },
+                        {
+                            id: '311',
+                            type: 'block',
+                            cssClass: 'block-col', flex: 1,
+                            ideSelected: false,
+                            idePreSelected: false,
+                            items: [
+                                {
+                                    id: '3111a',
+                                    type: 'input',
+                                    cssClass: 'block-col', flex: 1,
+                                    ideSelected: false,
+                                    idePreSelected: false,
+                                    items: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+        Bootstrap.init(config);
+    }
+    //
+});

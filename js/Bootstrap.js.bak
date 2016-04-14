@@ -1,0 +1,215 @@
+/**
+ * Created by yangjiankang on 16/4/6.
+ */
+import Vue from "../node_modules/vue/dist/vue.js";
+
+import CommandManager from "./CommandManager.js";
+
+import Block from "./widget/layout/Block.js";
+import Input from "./widget/form/Input.js";
+
+import Utils from  "./Utils.js";
+
+
+export default class Bootstrap {
+
+    constructor(el, config) {
+
+        var commandManager = new CommandManager();
+
+        this.app = new Vue({
+            el: el,
+            data: {
+                model: '', //design|view
+                layout: config,
+                undoLength: 0,
+                redoLength: 0,
+                selectedId: null,
+                selectedObject: null,
+                selectedPath: []
+            },
+            events: {
+                "ide-event-root-selected": function (id) {
+                    this.select(id);
+                }
+            },
+            methods: {
+
+                _refreshUndoRedoAndSelect: function () {
+                    this.undoLength = commandManager.undoLength();
+                    this.redoLength = commandManager.redoLength();
+
+                    var selectObj = Utils.findSelected(this.layout);
+
+                    if (selectObj) {
+                        var selectedId = selectObj.id;
+                        this.selectedId = selectedId;
+                        this.selectedObject = selectObj;
+                        this.selectedPath = Utils.findSelectedPath(this.layout, selectedId);
+                    } else {
+                        this.selectedId = null;
+                        this.selectedObject = null;
+                        this.selectedPath = [];
+                    }
+                },
+                undo: function () {
+                    commandManager.undo();
+                    this._refreshUndoRedoAndSelect();
+                },
+                redo: function () {
+                    commandManager.redo();
+                    this._refreshUndoRedoAndSelect();
+                },
+                _add: function (pid, conf, index) {
+                    //TODO index
+                    var parent = Utils.findById(this.layout, pid);
+                    if (parent != null) {
+                        if (index == undefined) {
+                            index = parent.items.length;
+                        }
+                        parent.items.splice(index, 0, conf);
+                    }
+                },
+
+                add: function (pid, conf) {
+                    var self = this;
+                    commandManager.executeCmd({
+                        "pid": pid,
+                        "conf": conf,
+                        "execute": function () {
+                            self._add(this.pid, this.conf);
+                        },
+                        "undoExecute": function () {
+                            self._remove(this.conf.id);
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                },
+                _remove: function (id) {
+                    var parent = Utils.findParent(this.layout, id);
+                    var items = parent.items;
+                    var index = 0;
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].id == id) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    items.splice(index, 1);
+                },
+                remove: function (id) {
+                    if (!id) {
+                        return;
+                    }
+                    if (id == this.layout.id) {
+                        return;
+                    }
+                    var self = this;
+                    var parent = Utils.findParent(this.layout, id);
+                    var pid = null;
+                    var removeIndex = null;
+                    if (parent) {
+                        pid = parent.id;
+                        var index = 0;
+                        for (var i = 0; i < parent.items.length; i++) {
+                            if (id == parent.items[i].id) {
+                                index = i;
+                            }
+                        }
+                        removeIndex = index;
+                    }
+                    var removed = Utils.findById(this.layout, id);
+                    var removedConf = JSON.parse(JSON.stringify(removed));
+                    commandManager.executeCmd({
+                        "id": id,
+                        "pid": pid,
+                        "removedConf": removedConf,
+                        "removeIndex": removeIndex,
+                        "execute": function () {
+                            self._remove(this.id);
+                            self._select(this.pid);
+                        },
+                        "undoExecute": function () {
+                            self._add(this.pid, JSON.parse(JSON.stringify(this.removedConf)), this.removeIndex);
+                            self._select(this.removedConf.id);
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                },
+
+                _select: function (id) {
+                    this.$broadcast("ide-event-component-selected", id);
+                    var parent = Utils.findParent(this.layout, id);
+                    if (parent) {
+                        window.console.log("id=" + id + ",pid=" + parent.id);
+                        this.$broadcast("ide-event-component-pre-selected", parent.id);
+                    }
+                },
+
+                select: function (id) {
+                    var selectObj = Utils.findSelected(this.layout);
+                    var selectedId = null;
+                    if (selectObj) {
+                        var selectedId = selectObj.id;
+                    }
+                    //设置回调.
+                    var self = this;
+                    commandManager.executeCmd({
+                        "id": id,
+                        "hid": selectedId,
+                        "execute": function () {
+                            self._select(this.id);
+                        },
+                        "undoExecute": function () {
+                            self._select(this.hid);
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                },
+
+                _update: function (id, conf) {
+                    this.$broadcast("ide-event-component-attr-update", id, conf);
+                },
+
+                update: function (id, conf) {
+                    var self = this;
+                    var obj = Utils.findById(this.layout, id);
+                    var objConf = JSON.parse(JSON.stringify(obj));
+                    commandManager.executeCmd({
+                        "id": id,
+                        "conf": conf,
+                        "hconf": objConf,
+                        "execute": function () {
+                            self._update(this.id, JSON.parse(JSON.stringify(this.conf)));
+                        },
+                        "undoExecute": function () {
+                            self._update(this.id, JSON.parse(JSON.stringify(this.hconf)));
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                },
+                move: function (id, toId) {
+                    var self = this;
+                    var obj = JSON.parse(JSON.stringify(Utils.findById(this.layout, id)));
+                    var objParent = JSON.parse(JSON.stringify(Utils.findParent(this.layout, id)));
+                    commandManager.executeCmd({
+                        "id": id,
+                        "idObj": obj,
+                        "idParent": objParent,
+                        "toId": toId,
+                        "execute": function () {
+                            self._remove(this.id);
+                            self._add(this.toId, JSON.parse(JSON.stringify(this.idObj)));
+                        },
+                        "undoExecute": function () {
+                            self._remove(this.id);
+                            self._add(this.idParent.id, JSON.parse(JSON.stringify(this.idObj)));
+                        }
+                    });
+                    this._refreshUndoRedoAndSelect();
+                }
+            },
+            watch: {}
+        });
+    }
+}

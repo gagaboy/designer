@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <!--<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css">-->
+    <link rel="stylesheet" href="node_modules/uikit/dist/css/uikit.almost-flat.css">
+    <link rel="stylesheet" href="node_modules/uikit/dist/css/components/placeholder.almost-flat.css">
+    <style>
+        .block {
+            /*border: 1px solid #ccc;*/
+            position: relative;
+        }
+
+        .block-default-height {
+            min-height: 100px;
+        }
+
+        .block-row {
+            display: flex;
+        }
+
+        .block-col {
+        }
+
+        .component-selected {
+            outline: 1px solid #00cb67 !important;
+        }
+
+        .component-pre-selected {
+            outline: 1px solid rgba(0, 203, 103, 0.25);
+        }
+
+        .component-select-panel {
+            position: absolute;
+            top: -16px;
+            cursor: pointer;
+            color: rgba(0, 203, 103, 0.25);
+        }
+
+    </style>
+</head>
+<body>
+<br>
+
+<div class="uk-container uk-container-center">
+    <div class="uk-grid uk-grid-small">
+        <div class=" uk-width-1-4">
+            <div>
+                <div class="uk-grid uk-grid-collapse uk-form uk-form-horizontal">
+                    <div class="uk-width-1-5 ">
+                        <div class="uk-float-right" style="margin: 5px 5px 0 0">Username:</div>
+                    </div>
+                    <div class="uk-width-4-5">
+                        <div style="position: relative; display: inline-block" class="uk-width-1-1">
+                            <input type="text" class="uk-width-1-1" style="padding-right: 25px;">
+                            <!--<i class="uk-icon-calendar" style="position: absolute;right: 7px;top: 8px;"></i>-->
+                        </div>
+                        <label class=""> The uk-form-help-inline</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class=" uk-width-1-4">
+            <div>
+                <div class="uk-grid uk-grid-collapse uk-form uk-form-horizontal">
+                    <div class="uk-width-1-1">
+                        <div style="position: relative; display: inline-block" class="uk-width-1-2">
+                            <input type="text" class="uk-width-1-1" style="padding-right: 25px;">
+                            <!--<i class="uk-icon-calendar" style="position: absolute;right: 7px;top: 8px;"></i>-->
+                        </div>
+                        <label class=""> The uk-form-help-inline</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class=" uk-width-2-4">
+            <div>
+                <div class="uk-grid uk-grid-collapse uk-form ">
+                    <div class="uk-width-1-1" style="margin: 5px 5px 0 0">Username:</div>
+                    <div class="uk-width-1-1">
+                        <div style="position: relative; display: inline-block" class="uk-width-1-2">
+                            <input type="text" class="uk-width-1-1" style="padding-right: 25px;">
+                        </div>
+                        <label class=""> The uk-form-help-inline</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <form class="uk-form">
+
+        <fieldset data-uk-margin>
+            <legend>...</legend>
+            <input type="text" placeholder="">
+            <input type="password" placeholder="">
+            <select>
+                <option>...</option>
+                <option>...</option>
+            </select>
+            <button class="uk-button">...</button>
+            <label><input type="checkbox"> XXX</label>
+        </fieldset>
+
+    </form>
+
+
+    <ul class="uk-tab" >
+
+        <li class="uk-active"><a href="">xxxx</a></li>
+        <li><a href="">...</a></li>
+        <li><a href="">...</a></li>
+        <li class="uk-disabled"><a href="">...</a></li>
+
+    </ul>
+    <div>
+        xxxx
+    </div>
+</div>
+</body>
+</html>
