@@ -8,7 +8,7 @@ import Vue from "../../../node_modules/vue/dist/vue.js";
 
 var template = `
     <div :id="config.id"
-         v-bind:class="cssStyle"
+         v-bind:class="cssClass" v-bind:style="cssStyle"
          v-on:click.stop="ideSelected()">
         <div class="uk-grid uk-grid-collapse uk-form uk-form-horizontal uk-form-stacked">
             <div v-if="_showLabel" class="uk-width-{{_labelScale}}">

@@ -10,8 +10,6 @@
     <script src="build/designer.js"></script>
 </head>
 <body>
-
-
 <div id="designer-root">
     <div class="designer-header" id="">
         <div>
@@ -34,14 +32,16 @@
                 </div>
                 <div class="uk-width-4-10">
 
-                    <button v-on:click="insert(index)" v-for="(index, item) in acceptWidgets" v-if="item.show" class="btn">
+                    <button v-on:click="insert(index)" v-for="(index, item) in acceptWidgets" v-if="item.show"
+                            class="btn">
                         {{index}}
                     </button>
 
                 </div>
                 <div class="uk-width-2-10">
-
-                    <button v-on:click="remove" v-show="selectedId != null" class="btn">Delete</button>
+                    <button v-on:click="remove" v-show="removeBtnShow" class="btn">Delete</button>
+                    <button class="btn">preview</button>
+                    <button class="btn" v-on:click="exportJSON">export</button>
                 </div>
 
             </div>
@@ -59,7 +59,7 @@
                     <span v-if="$index != 0"> -&gt; </span>
 
                         <a href="javascript:;" v-on:click="select(path.id)"
-                                                              style="color: #FFF;">{{path.title}}</a>
+                           style="color: #FFF;">{{path.title}}</a>
                 </span>
             </div>
         </div>

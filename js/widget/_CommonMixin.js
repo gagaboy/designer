@@ -7,6 +7,12 @@ import Utils from "./Utils.js";
 
 /**
  * 选中, 是否有子项, 拖放
+ *
+ *
+ *
+ *  $bind : [
+ {targetId:'', rule:function(){}}
+ ]
  */
 
 var key = '__designer__';
@@ -30,6 +36,21 @@ export default  {
         }
     },
     events: {
+
+        "bind-event-bind-accept": function (id, value) {
+            var self = this;
+            if (this.config.$bind) {
+                for (var i = 0; i < this.config.$bind.length; i++) {
+                    var bind = this.config.$bind[i];
+                    if (bind.targetId == id) {
+                        var fun = bind.rule;
+                        fun.apply(self, [value]);
+                    }
+                }
+            }
+            return true;
+        },
+
         "ide-event-component-selected": function (id) {
             //响应选中事件
             if (this.config.id == id) {
@@ -96,7 +117,7 @@ export default  {
                 for (var i = 0; i < elements.length; i++) {
                     var formElement = elements[i];
                     var row = {id: Utils.uuid(), type: 'row', items: []};
-                    var col = {id: Utils.uuid(),type: 'col', items: []};
+                    var col = {id: Utils.uuid(), type: 'col', items: []};
                     form.items.push(row);
                     row.items.push(col);
                     col.items.push(formElement);
@@ -108,7 +129,7 @@ export default  {
     },
     computed: {
 
-        "cssStyle": function () {
+        "cssClass": function () {
 
             var style = {};
             //if (this.mode == 'design') {
@@ -123,15 +144,15 @@ export default  {
             if (this.config.hide) {
                 style['component-hide'] = this.config.hide;
             }
-            if(this.config.cssClass) {
+            if (this.config.cssClass) {
                 var cls = this.config.cssClass;
-                if(Array.isArray(cls)) {
-                    for(var i=0; i<cls.length; i++) {
+                if (Array.isArray(cls)) {
+                    for (var i = 0; i < cls.length; i++) {
                         var c = cls[i];
-                        style[c] = true ;
+                        style[c] = true;
                     }
-                }else {
-                    style[cls] = true ;
+                } else {
+                    style[cls] = true;
                 }
             }
             if (this._appendClass) {
@@ -141,6 +162,15 @@ export default  {
                         style[key] = cj[key];
                     }
                 }
+            }
+            return style;
+        },
+        "cssStyle": function () {
+            //v-bind:style="cssStyle"
+            //[]
+            var style = {};
+            if (this.config.cssStyle) {
+                style = this.config.cssStyle;
             }
             return style;
         }

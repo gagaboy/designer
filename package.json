@@ -18,6 +18,8 @@
     "vue": "1.0.21",
     "webpack": "^1.12.14",
     "webpack-dev-server": "~1.14.0",
-    "open-browser-webpack-plugin": "0.0.1"
+    "open-browser-webpack-plugin": "0.0.1",
+    "style-loader": "~0.13.0",
+    "css-loader": "~0.23.0"
   }
 }

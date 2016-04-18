@@ -15,14 +15,18 @@ Jquery(document).ready(function () {
     var config = {
         id: '0',
         items: [{
-            id: '1',
+            id: '1X',
             type: 'container',
             center: 'false',
             hide: false,
+            cssStyle: {},
             cssClass: '',
             center: true,
             ideSelected: false,
             idePreSelected: false,
+            $test: function () {
+                alert('x');
+            },
             items: [
                 {
                     id: 'tab1row',
@@ -188,7 +192,16 @@ Jquery(document).ready(function () {
                                     "type": 'text',
                                     ideSelected: false,
                                     idePreSelected: false,
+                                    value: '',
+                                    $validates: [
 
+                                    ],
+                                    $bind: [{
+                                        targetId: '121', rule: function (v) {
+                                            this.config.value = JSON.stringify(v);
+                                        }
+                                    }
+                                    ]
                                 }
                             ]
                         },

@@ -8,13 +8,15 @@ import Vue from "../../../node_modules/vue/dist/vue.js";
 
 var template = `
 
-    <div v-bind:class="cssStyle"
+    <div v-bind:class="cssClass" v-bind:style="cssStyle"
          v-on:click.stop="ideSelected()"
          style="position: relative"
          :id="config.id"
             >
         <i class="uk-icon-pencil-square-o component-select-panel" v-show="config.idePreSelected" ></i>
-
+        
+        
+        
         <template v-if="!hasChild()">
             <div class="uk-placeholder">
             <code>Accept: row</code>

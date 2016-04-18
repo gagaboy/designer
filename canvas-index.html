@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="build/dist/index.css">
+
+    <style>
+        .block {
+            /*border: 1px solid #ccc;*/
+            position: relative;
+        }
+
+        .block-default-height {
+            min-height: 100px;
+        }
+
+        .block-row {
+            display: flex;
+        }
+
+        .block-col {
+        }
+
+        .component-selected {
+            outline: 1px solid #00cb67 !important;
+        }
+
+        .component-pre-selected {
+            outline: 1px solid rgba(0, 203, 103, 0.25);
+        }
+
+        .component-select-panel {
+            position: absolute;
+            top: -16px;
+            left: 0;
+            cursor: pointer;
+            color: rgba(0, 203, 103, 0.25);
+        }
+
+        .component-hide {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+<br>
+<div id="appRoot" style="position: relative">
+    <my-app :config="layout" :mode="mode">
+
+    </my-app>
+</div>
+
+<script src="build/dist/canvas.js"></script>
+</body>
+</html>

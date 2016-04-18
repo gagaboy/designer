@@ -15,11 +15,11 @@ export default class WidgetFactory {
 
     wrapDefaultConf(conf) {
         var defaultConf = {
-            cssClass: '',
             ideSelected: false,
             idePreSelected: false,
             hide: false,
             cssClass: [],
+            cssStyle: {},
             items: []
         };
         var target = Jquery.extend({}, defaultConf, conf);
