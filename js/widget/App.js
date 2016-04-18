@@ -19,6 +19,9 @@ import Select from "./form/Select.js";
 import Checkbox from "./form/Checkbox.js";
 import Textarea from "./form/Textarea.js";
 import Radio from "./form/Radio.js";
+
+import Validation from "./form/Validation.js";
+
 import Text from "./Text.js";
 
 import Utils from  "./Utils.js";
@@ -26,7 +29,7 @@ import Utils from  "./Utils.js";
 //Vue.config.debug = true ;
 
 var template = `
-<div v-bind:class="cssStyle"
+<div v-bind:class="cssClass" v-bind:style="cssStyle"
          v-on:click.stop="ideSelected()"
          :id="config.id"
             >
@@ -55,9 +58,15 @@ var App = Vue.extend({
     events: {
         "ide-event-root-selected": function (id) {
             this.select(id);
+        },
+        "bind-event-value-changed" : function (id, newValue, oldValue) {
+            this.$broadcast("bind-event-bind-accept", id, newValue, oldValue);
         }
     },
     methods: {
+        getConfig:function () {
+            return JSON.stringify(this.config);
+        },
         _changeStatus: function (status) {
             //design|view
             Utils.addProperty(this.config, "_status", status);
@@ -86,7 +95,7 @@ var App = Vue.extend({
             }
         },
         undo: function () {
-            console.log('undo');
+            //console.log('undo');
             commandManager.undo();
             this._refreshUndoRedoAndSelect();
         },

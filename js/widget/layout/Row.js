@@ -7,7 +7,7 @@ import Vue from "../../../node_modules/vue/dist/vue.js";
 
 var template = `
     <div :id="config.id"
-         v-bind:class="cssStyle"
+         v-bind:class="cssClass" v-bind:style="cssStyle"
          v-on:click.stop="ideSelected()"
          style="position: relative"
          >

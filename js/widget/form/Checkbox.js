@@ -8,7 +8,7 @@ import FormCommon from "./_FormCommon.js";
 
 var template = `
      <div :id="config.id"
-         v-bind:class="cssStyle"
+         v-bind:class="cssClass" v-bind:style="cssStyle"
          v-on:click.stop="ideSelected()">
         <div class="uk-grid uk-grid-collapse uk-form uk-form-horizontal ">
             <div v-if="_showLabel" class="uk-width-{{_labelScale}}">

@@ -1,5 +1,3 @@
-
-
 var webpack = require('webpack');
 var path = require('path');
 var OpenBrowserPlugin = require('open-browser-webpack-plugin');
@@ -39,6 +37,6 @@ module.exports = {
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
-        new OpenBrowserPlugin({ url: 'http://localhost:8080/designer.html' })
+        new OpenBrowserPlugin({url: 'http://localhost:8080/designer.html'})
     ]
 };

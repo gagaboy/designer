@@ -3,7 +3,6 @@
  */
 
 
-
 /**
  * 1. showLabel
  * 2. isValueChanged
@@ -13,6 +12,12 @@
  * 6. status : edit, readonly, disabled
  *
  *  {label, value, displayValue, required, message, validated, status}
+ bind config : {formelement'id : }
+ key:value 拉平的结构.
+ 或者立体结构
+ $bind : [
+ {targetId:'', rule:function(){}}
+ ]
  *
  */
 export default  {
@@ -20,32 +25,30 @@ export default  {
 
     created: function () {
         // show
-        this.config._initValue = this.config.value;
-        this.config._initDisplayValue = this.config.displayValue;
+
+        var config = JSON.parse(JSON.stringify(this.config));
+
+        this.$initValue$ = config.value;
 
     },
     watch: {
         'config.value': function (newValue, oldValue) {
-            //console.log(newValue);
-            if (this.__target_ && this.__target_path_) {
-                this.$set("__target_." + this.__target_path_, newValue);
-            }
+            //向上通知控制器,值发生了变化
+            this.$dispatch("bind-event-value-changed", this.config.id, newValue, oldValue);
+            //处理校验
         }
     },
+    events: {
 
+    },
 
     methods: {
-
-        bind: function (object, path) {
-            this.__target_ = object;
-            this.__target_path_ = path;
-        },
 
         getValue: function () {
             return this.config.value;
         },
         getInitValue: function () {
-            return this.config._initValue;
+            return this.$initValue$;
         },
         getDisplay: function () {
             return this.config.display;
