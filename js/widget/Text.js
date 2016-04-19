@@ -9,9 +9,7 @@ var template = `
     <div :id="config.id"
          v-bind:class="cssClass"
          v-on:click.stop="ideSelected()">
-       {{{
-       config.value
-       }}}
+       {{{config.value}}}
 
         <template v-if="!hasText()">
             <div class='uk-placeholder'>Double click to edit ! </div>
