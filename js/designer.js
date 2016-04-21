@@ -12,6 +12,11 @@ import App from "./widget/App.js";
 
 import MetaConfig from "./widget/MetaConfig.js";
 
+require('../css/designer.css');
+require('../node_modules/uikit/dist/css/components/placeholder.almost-flat.css');
+require('../node_modules/uikit/dist/css/components/form-advanced.css');
+
+
 var widgetFactory = new WidgetFactory();
 
 var config = {
