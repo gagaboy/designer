@@ -10,6 +10,10 @@ import Vue from "../node_modules/vue/dist/vue.js";
 
 import App from "./widget/App.js";
 
+import '../node_modules/uikit/dist/css/components/placeholder.almost-flat.css';
+import '../node_modules/uikit/dist/css/components/form-advanced.css';
+import '../node_modules/uikit/dist/css/uikit.almost-flat.css';
+
 Jquery(document).ready(function () {
 
     var config = {
