@@ -19,7 +19,7 @@ module.exports = {
     },
     output: {
         path: 'build',
-        filename: '[name].js',
+        filename: 'js/[name].js',
         publicPath: "/build/"
     },
     module: {
@@ -37,7 +37,7 @@ module.exports = {
                 loader: ExtractTextPlugin.extract("style-loader", "css-loader")
             },
             { test: /\.(eot|woff|woff2|ttf|svg|png|jpe?g|gif)(\?\S*)?$/
-                , loader: 'url?limit=100000&name=[name].[ext]'
+                , loader: 'url?limit=100000&name=fonts/[name].[ext]'
             }
         ]
     },
@@ -47,7 +47,7 @@ module.exports = {
     },
 
     plugins: [
-        new ExtractTextPlugin("form.designer.css"),
+        new ExtractTextPlugin("css/form.designer.css"),
         new webpack.HotModuleReplacementPlugin(),
         new OpenBrowserPlugin({url: 'http://localhost:8080/designer.html'})
     ]
