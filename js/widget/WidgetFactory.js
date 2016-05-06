@@ -22,6 +22,13 @@ export default class WidgetFactory {
             cssStyle: {},
             items: []
         };
+        if (conf.value != undefined) {
+            if (Array.isArray(conf.value)) {
+                defaultConf.initValue = [];
+            } else {
+                defaultConf.initValue = '';
+            }
+        }
         var target = Jquery.extend({}, defaultConf, conf);
         if (target.id == undefined) {
             target.id = this.generateUUID();

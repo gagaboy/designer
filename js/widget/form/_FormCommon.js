@@ -22,27 +22,54 @@
  */
 export default  {
 
+    vuex: {
+        getters: {
+            store: function (store) {
+                return store;
+            }
+        },
+        actions: {
+            updateValue: function (store, that, e) {
+                //validator
+                store.dispatch("UPDATE", that.config.storeBind, e.target.value)
+            },
+            updateStore:function (store, that, propertyName, e) {
+                
+            }
+        }
+    },
 
     created: function () {
         // show
 
         var config = JSON.parse(JSON.stringify(this.config));
 
-        this.$initValue$ = config.value;
-
+        // this.$initValue$ = config.value;
+        // this.$set('config.test', "11");
+        // this.config.$test2 = '222';
     },
     watch: {
         'config.value': function (newValue, oldValue) {
-            //向上通知控制器,值发生了变化
-            this.$dispatch("bind-event-value-changed", this.config.id, newValue, oldValue);
-            //处理校验
+            if (this.$initStatus$) {
+                //do nothing
+                this.$initStatus$ = false;
+            } else {
+                //向上通知控制器,值发生了变化
+                this.$dispatch("bind-event-value-changed", this.config.id, newValue, oldValue);
+                //TODO 处理校验
+                this.config.$valueChanged = true;
+            }
         }
     },
-    events: {
-
-    },
+    events: {},
 
     methods: {
+
+        setInitValue: function (newValue) {
+            this.$initStatus$ = true;
+            this.$initValue$ = newValue;
+            this.config.value = newValue;
+        },
 
         getValue: function () {
             return this.config.value;
@@ -54,7 +81,7 @@ export default  {
             return this.config.display;
         },
         reset: function () {
-
+            this.config.value = this.$initValue$;
         },
         validate: function () {
 
@@ -92,6 +119,9 @@ export default  {
                 return this.config.elementScale;
             }
             return "1-1";
+        },
+        bindValue : function () {
+            return this.store[this.config.storeBind] ;
         }
     }
 }

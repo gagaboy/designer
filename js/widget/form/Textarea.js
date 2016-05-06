@@ -18,7 +18,7 @@ var template = `
             </div>
             <div class="uk-width-{{_mainScale}}">
                 <div style="position: relative; display: inline-block" class="uk-width-{{_elementScale}}">
-                   <textarea v-model="config.value" lazy rows="{{_rows}}" class="uk-width-1-1"></textarea>
+                   <textarea :value="bindValue" @change="updateValue(this,$event)" lazy rows="{{_rows}}" class="uk-width-1-1"></textarea>
                 </div>
                 <div class="">
                     <my-text :config="config.items.message"></my-text>

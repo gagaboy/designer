@@ -3,6 +3,9 @@
  */
 
 import Vue from "../../node_modules/vue/dist/vue.js";
+
+import AppStore from "./AppStore";
+
 import CommonMixin from "./_CommonMixin.js";
 import CommandManager from "./CommandManager.js";
 
@@ -26,6 +29,9 @@ import Text from "./Text.js";
 
 import Utils from  "./Utils.js";
 
+// dataSource
+import DataSource from "./data/DataSource";
+
 //Vue.config.debug = true ;
 
 var template = `
@@ -33,15 +39,21 @@ var template = `
          v-on:click.stop="ideSelected()"
          :id="config.id"
             >
-    <template v-for="item in config.items">
-        <my-container :config="item"></my-container>
+    <template v-for="item in config.items.data">
+        <my-ds :config="item"></my-ds>
     </template>
+    
+    <my-container :config="config.items.layout"></my-container>
+    *****{{fluxData.name}} ****
+    
 </div>
 `;
+
 
 var commandManager = new CommandManager();
 
 var App = Vue.extend({
+    store: AppStore,
     mixins: [CommonMixin],
     name: 'my-app',
     template: template,
@@ -59,12 +71,12 @@ var App = Vue.extend({
         "ide-event-root-selected": function (id) {
             this.select(id);
         },
-        "bind-event-value-changed" : function (id, newValue, oldValue) {
+        "bind-event-value-changed": function (id, newValue, oldValue) {
             this.$broadcast("bind-event-bind-accept", id, newValue, oldValue);
         }
     },
     methods: {
-        getConfig:function () {
+        getConfig: function () {
             return JSON.stringify(this.config);
         },
         _changeStatus: function (status) {

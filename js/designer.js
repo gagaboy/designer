@@ -20,26 +20,20 @@ import '../node_modules/uikit/dist/css/uikit.almost-flat.css';
 var widgetFactory = new WidgetFactory();
 
 var config = {
-    id: 'root',
-    type: 'page',
-    hide: false,
-    cssClass: '',
-    ideSelected: false,
-    idePreSelected: false,
-    $aoa: function () {
-        this.config.id = '';
-    },
-    items: [{
-        id: '1',
-        type: 'container',
-        center: 'true',
-        hide: false,
-        cssClass: '',
-        ideSelected: false,
-        idePreSelected: false,
-        items: []
-    }]
+    id: '0', type: 'app', items: {
+        data: [], layout: {
+            id: 'root',
+            type: 'container',
+            center: 'true',
+            hide: false,
+            cssClass: '',
+            ideSelected: false,
+            idePreSelected: false,
+            items: []
+        }
+    }
 };
+
 
 function getWidgetConfig() {
     return MetaConfig();
