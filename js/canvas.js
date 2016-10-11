@@ -9,7 +9,7 @@ import Jquery from "../node_modules/jquery/dist/jquery.js";
 
 import Vue from "../node_modules/vue/dist/vue.js";
 
-
+import AppStore from "./widget/data/AppStore";
 import App from "./widget/App.js";
 
 import '../node_modules/uikit/dist/css/components/placeholder.almost-flat.css';
@@ -318,9 +318,11 @@ Jquery(document).ready(function () {
     if (parent && parent.canvasConfig) {
         config = parent.canvasConfig;
     }
+
+    AppStore.dispatch('INIT');
     var app = new Vue({
         el: "#appRoot",
-
+        store: AppStore,
         data: {
             layout: config,
             mode: 'design' //design|view

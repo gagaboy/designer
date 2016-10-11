@@ -1,8 +1,9 @@
 /**
  * Created by yangjiankang on 4/27/16.
  */
-import Vue from "../../node_modules/vue/dist/vue";
-import Vuex from '../../node_modules/vuex/dist/vuex'
+import Vue from "../../../node_modules/vue/dist/vue";
+import Vuex from '../../../node_modules/vuex/dist/vuex';
+import $ from '../../../node_modules/jquery/dist/jquery';
 
 Vue.use(Vuex);
 
@@ -29,6 +30,11 @@ const mutations = {
     },
     UPDATE(state, name, value) {
         state[name] = value;
+    },
+    INIT() {
+        $.get("init.json",function (data) {
+            $.extend(state, data);
+        })
     }
 }
 

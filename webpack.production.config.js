@@ -2,7 +2,8 @@ var path = require('path');
 module.exports = {
     entry: {
         "canvas": './js/canvas.js',
-        "designer": './js/designer.js'
+        "designer": './js/designer.js',
+        "demo":'./j2/Demo.js'
     },
     output: {
         path: 'build',

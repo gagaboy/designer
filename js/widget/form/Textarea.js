@@ -18,7 +18,7 @@ var template = `
             </div>
             <div class="uk-width-{{_mainScale}}">
                 <div style="position: relative; display: inline-block" class="uk-width-{{_elementScale}}">
-                   <textarea :value="bindValue" @change="updateValue(this,$event)" lazy rows="{{_rows}}" class="uk-width-1-1"></textarea>
+                   <textarea :value="bindValue" @change="up(this,$event)" lazy rows="{{_rows}}" class="uk-width-1-1"></textarea>
                 </div>
                 <div class="">
                     <my-text :config="config.items.message"></my-text>
@@ -41,6 +41,12 @@ var Textarea = Vue.extend({
                 return this.config.rows;
             }
             return "5"
+        }
+    },
+    methods : {
+        up : function (t, e) {
+            //store, that, propertyName, path
+            this.updateStore(this.store,  this.config.storeBind, e.target.value);
         }
     }
 });

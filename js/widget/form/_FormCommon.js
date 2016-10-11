@@ -33,8 +33,8 @@ export default  {
                 //validator
                 store.dispatch("UPDATE", that.config.storeBind, e.target.value)
             },
-            updateStore:function (store, that, propertyName, e) {
-                
+            updateStore: function (store, that, propertyName, value) {
+                store.dispatch("UPDATE", propertyName, value) ;
             }
         }
     },
@@ -120,8 +120,8 @@ export default  {
             }
             return "1-1";
         },
-        bindValue : function () {
-            return this.store[this.config.storeBind] ;
+        bindValue: function () {
+            return this.store[this.config.storeBind];
         }
     }
 }

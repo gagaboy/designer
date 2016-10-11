@@ -4,7 +4,7 @@
 
 import Vue from "../../node_modules/vue/dist/vue.js";
 
-import AppStore from "./AppStore";
+
 
 import CommonMixin from "./_CommonMixin.js";
 import CommandManager from "./CommandManager.js";
@@ -53,7 +53,6 @@ var template = `
 var commandManager = new CommandManager();
 
 var App = Vue.extend({
-    store: AppStore,
     mixins: [CommonMixin],
     name: 'my-app',
     template: template,
